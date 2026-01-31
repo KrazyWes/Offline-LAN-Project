@@ -1,3 +1,4 @@
+# app/ui/monitor_window.py
 from PySide6.QtWidgets import QMainWindow, QLabel
 
 class MonitorWindow(QMainWindow):

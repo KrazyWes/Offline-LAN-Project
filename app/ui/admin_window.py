@@ -1,3 +1,4 @@
+# app/ui/admin_window.py
 from PySide6.QtWidgets import QMainWindow, QLabel
 
 class AdminWindow(QMainWindow):
