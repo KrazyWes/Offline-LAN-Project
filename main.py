@@ -6,9 +6,9 @@ from app.ui.login import LoginWindow
 from app.ui.register_super_admin import RegisterSuperAdminWindow
 
 from app.ui.super_admin_window import SuperAdminWindow
-from app.ui.admin_window import AdminWindow
+from app.ui.admin.admin_window import AdminWindow
 from app.ui.teller_window import TellerWindow
-from app.ui.monitor_window import MonitorWindow
+from app.ui.monitor.monitor_window import MonitorWindow
 
 
 def open_role_window(user):
