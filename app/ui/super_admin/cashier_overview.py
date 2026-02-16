@@ -14,13 +14,13 @@ from PySide6.QtWidgets import (
     QPushButton, QToolButton, QScrollArea, QFrame, QGridLayout
 )
 
-from app.ui.styles import (
+from app.ui.components.styles import (
     COLORS, FONT_SIZES, FONT_WEIGHTS, SPACING, DIMENSIONS, RADIUS,
     get_page_stylesheet
 )
-from app.ui.cashier_card import CashierCard
-from app.ui.toggle_switch import ToggleSwitch
-from app.ui.icon_utils import set_icon
+from .cashier_card import CashierCard
+from app.ui.components.toggle_switch import ToggleSwitch
+from app.ui.components.icon_utils import set_icon
 
 
 @dataclass

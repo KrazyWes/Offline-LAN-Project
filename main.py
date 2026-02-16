@@ -5,9 +5,9 @@ import db
 from app.ui.login import LoginWindow
 from app.ui.register_super_admin import RegisterSuperAdminWindow
 
-from app.ui.super_admin_window import SuperAdminWindow
+from app.ui.super_admin.super_admin_window import SuperAdminWindow
 from app.ui.admin.admin_window import AdminWindow
-from app.ui.teller_window import TellerWindow
+from app.ui.teller.teller_window import TellerWindow
 from app.ui.monitor.monitor_window import MonitorWindow
 
 

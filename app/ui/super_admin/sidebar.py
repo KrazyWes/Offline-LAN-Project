@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QToolButton,
     QSizePolicy
 )
-from app.ui.styles import (
+from app.ui.components.styles import (
     COLORS, FONT_SIZES, FONT_WEIGHTS, SPACING, DIMENSIONS,
     get_sidebar_stylesheet
 )
@@ -57,7 +57,7 @@ class NavButton(QToolButton):
                 self.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
         else:
             # Fallback to icon_utils
-            from app.ui.icon_utils import set_icon
+            from app.ui.components.icon_utils import set_icon
             set_icon(self, icon_path, self.ICON_SIZE)
 
 
@@ -145,7 +145,7 @@ class Sidebar(QWidget):
                 self.toggle_btn.setIcon(QIcon(scaled))
                 self.toggle_btn.setIconSize(QSize(toggle_icon_size, toggle_icon_size))
         else:
-            from app.ui.icon_utils import set_icon
+            from app.ui.components.icon_utils import set_icon
             set_icon(self.toggle_btn, "icons/sidebar/chevron_left.png", toggle_icon_size)
         header_layout.addWidget(self.toggle_btn)
         
@@ -325,7 +325,7 @@ class Sidebar(QWidget):
                 self.toggle_btn.setIcon(QIcon(scaled))
                 self.toggle_btn.setIconSize(QSize(toggle_icon_size, toggle_icon_size))
         else:
-            from app.ui.icon_utils import set_icon
+            from app.ui.components.icon_utils import set_icon
             set_icon(self.toggle_btn, f"icons/sidebar/{chevron_file}", toggle_icon_size)
         
         # Update stylesheet

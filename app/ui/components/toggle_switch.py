@@ -1,4 +1,4 @@
-# app/ui/toggle_switch.py
+# app/ui/components/toggle_switch.py
 """
 iOS-style toggle switch component matching Figma specifications.
 From COMPLETE_SYSTEM_ALGORITHM.md section 4.2.2
@@ -7,7 +7,7 @@ From COMPLETE_SYSTEM_ALGORITHM.md section 4.2.2
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt, QRect, QPropertyAnimation, QEasingCurve, Property, Signal
 from PySide6.QtGui import QPainter, QColor, QPen
-from app.ui.styles import COLORS, DIMENSIONS
+from app.ui.components.styles import COLORS, DIMENSIONS
 
 class ToggleSwitch(QWidget):
     """iOS-style toggle switch with smooth animation"""

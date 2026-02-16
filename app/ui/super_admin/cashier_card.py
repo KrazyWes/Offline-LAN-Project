@@ -10,11 +10,11 @@ from PySide6.QtWidgets import (
     QGridLayout, QSizePolicy, QGraphicsDropShadowEffect
 )
 from PySide6.QtGui import QColor
-from app.ui.styles import (
+from app.ui.components.styles import (
     COLORS, FONT_SIZES, FONT_WEIGHTS, SPACING, RADIUS, DIMENSIONS,
     get_card_stylesheet
 )
-from app.ui.icon_utils import set_icon
+from app.ui.components.icon_utils import set_icon
 
 
 def format_currency(amount: float) -> str:

@@ -7,9 +7,9 @@ Matches Figma specifications from COMPLETE_SYSTEM_ALGORITHM.md
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QStackedWidget, QLabel
 from PySide6.QtCore import Qt
 
-from app.ui.sidebar import Sidebar
-from app.ui.cashier_overview import CashierOverview
-from app.ui.styles import COLORS
+from app.ui.components.styles import COLORS
+from .sidebar import Sidebar
+from .cashier_overview import CashierOverview
 
 
 class SuperAdminWindow(QMainWindow):

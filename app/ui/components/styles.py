@@ -1,4 +1,4 @@
-# app/ui/styles.py
+# app/ui/components/styles.py
 """
 Centralized styling system matching Figma specifications exactly.
 All colors, typography, spacing, and dimensions from COMPLETE_SYSTEM_ALGORITHM.md

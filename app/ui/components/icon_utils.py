@@ -1,4 +1,4 @@
-# app/ui/icon_utils.py
+# app/ui/components/icon_utils.py
 """
 Icon utility functions with fallback handling for missing icons.
 """

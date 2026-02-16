@@ -1,4 +1,4 @@
-# app/ui/teller_window.py
+# app/ui/teller/teller_window.py
 from PySide6.QtWidgets import QMainWindow, QLabel
 
 class TellerWindow(QMainWindow):
