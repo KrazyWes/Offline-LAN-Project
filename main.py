@@ -1,4 +1,5 @@
 # main.py
+from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QApplication
 import db
 
@@ -11,11 +12,11 @@ from app.ui.teller.teller_window import TellerWindow
 from app.ui.monitor.monitor_window import MonitorWindow
 
 
-def open_role_window(user):
+def open_role_window(user, on_logout=None):
     role = user["role"]
 
     if role == "super_admin":
-        win = SuperAdminWindow(user)
+        win = SuperAdminWindow(user, on_logout=on_logout)
     elif role == "admin":
         win = AdminWindow(user)
     elif role == "teller":
@@ -31,12 +32,21 @@ def open_role_window(user):
 
 
 if __name__ == "__main__":
+    QCoreApplication.setApplicationName("Offline-LAN")
+    QCoreApplication.setOrganizationName("Offline-LAN")
     app = QApplication([])
 
     windows = []
 
     def start_login():
-        login = LoginWindow(on_login_success=lambda u: windows.append(open_role_window(u)))
+        def on_login_success(u):
+            def do_logout(u=u):
+                from app.ui.login import save_remembered_username
+                save_remembered_username(u["username"])
+                start_login()
+            windows.append(open_role_window(u, on_logout=do_logout))
+
+        login = LoginWindow(on_login_success=on_login_success)
         login.show()
         windows.append(login)
 

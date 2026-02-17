@@ -1,23 +1,154 @@
-# app/ui/super_admin_window.py
+# app/ui/super_admin/super_admin_window.py
 """
 Super Admin Window - Main dashboard for super admin role.
 Matches Figma specifications from COMPLETE_SYSTEM_ALGORITHM.md
 """
 
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QStackedWidget, QLabel
-from PySide6.QtCore import Qt
+from pathlib import Path
 
-from app.ui.components.styles import COLORS
+from PySide6.QtWidgets import (
+    QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget, QLabel,
+    QPushButton, QFrame
+)
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QImage, QPixmap, QResizeEvent
+from PySide6.QtWidgets import QGraphicsDropShadowEffect
+
+from app.ui.components.styles import COLORS, FONT_SIZES, FONT_WEIGHTS, SPACING, RADIUS
 from .sidebar import Sidebar
 from .cashier_overview import CashierOverview
+
+_LOGOUT_BG_PATH = Path(__file__).resolve().parent.parent.parent / "assets" / "backgrounds" / "rooster.png"
+
+
+def _load_logout_background_pixmap(label: QLabel, w: int, h: int) -> None:
+    """Load rooster.png background (same approach as login page / test.py)."""
+    path = _LOGOUT_BG_PATH
+    if not path.exists():
+        return
+    with open(path, "rb") as f:
+        data = f.read()
+    img = QImage()
+    img.loadFromData(data)
+    if img.isNull():
+        try:
+            from PIL import Image
+            import io
+            pil_img = Image.open(io.BytesIO(data)).convert("RGBA")
+            img = QImage(pil_img.tobytes(), pil_img.width, pil_img.height, QImage.Format.Format_RGBA8888)
+        except (ImportError, ValueError, OSError, RuntimeError):
+            return
+    pix = QPixmap.fromImage(img)
+    if not pix.isNull():
+        label.setPixmap(pix)
+
+
+class LogoutPage(QWidget):
+    """Full-page logout confirmation with background image (same style as login page)."""
+
+    confirmed = Signal()
+    cancelled = Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("logoutPage")
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setAlignment(Qt.AlignCenter)
+
+        # Background label (positioned via setGeometry, same as login)
+        self._bg_label = QLabel(self)
+        self._bg_label.setScaledContents(True)
+        self._bg_label.lower()
+
+        # Card overlay (same style as login)
+        card = QFrame()
+        card.setObjectName("logoutCard")
+        card.setFixedWidth(440)
+        card.setStyleSheet("""
+            QFrame#logoutCard {
+                background-color: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                border: 1px solid rgba(0, 0, 0, 0.08);
+            }
+        """)
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(20)
+        shadow.setXOffset(0)
+        shadow.setYOffset(4)
+        shadow.setColor(Qt.darkGray)
+        card.setGraphicsEffect(shadow)
+
+        form = QVBoxLayout(card)
+        form.setSpacing(SPACING['4'])
+        form.setContentsMargins(SPACING['6'], SPACING['6'], SPACING['6'], SPACING['6'])
+
+        msg = QLabel("Are you sure you want to logout?")
+        msg.setWordWrap(True)
+        msg.setAlignment(Qt.AlignCenter)
+        msg.setStyleSheet(f"font-size: {FONT_SIZES['lg']}px; color: {COLORS['gray_800']};")
+        form.addWidget(msg, 1)
+
+        btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(SPACING['3'])
+        btn_layout.addStretch()
+        btn_yes = QPushButton("Yes")
+        btn_yes.setObjectName("yesBtn")
+        btn_yes.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_yes.setStyleSheet(f"""
+            QPushButton#yesBtn {{
+                background-color: {COLORS['blue_600']};
+                color: {COLORS['white']};
+                border: none;
+                border-radius: {RADIUS['lg']}px;
+                min-width: 100px;
+                min-height: 36px;
+            }}
+            QPushButton#yesBtn:hover {{ background-color: {COLORS['blue_700']}; }}
+        """)
+        btn_yes.clicked.connect(self.confirmed.emit)
+        btn_layout.addWidget(btn_yes)
+        btn_no = QPushButton("No")
+        btn_no.setObjectName("noBtn")
+        btn_no.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_no.setStyleSheet(f"""
+            QPushButton#noBtn {{
+                background-color: {COLORS['gray_100']};
+                color: {COLORS['gray_800']};
+                border: none;
+                border-radius: {RADIUS['lg']}px;
+                min-width: 100px;
+                min-height: 36px;
+            }}
+            QPushButton#noBtn:hover {{ background-color: {COLORS['gray_200']}; }}
+        """)
+        btn_no.clicked.connect(self.cancelled.emit)
+        btn_layout.addWidget(btn_no)
+        btn_layout.addStretch()
+        form.addLayout(btn_layout)
+        main_layout.addWidget(card, alignment=Qt.AlignCenter)
+        self._bg_label.lower()
+
+    def resizeEvent(self, event: QResizeEvent):
+        super().resizeEvent(event)
+        s = self.size()
+        self._bg_label.setGeometry(0, 0, s.width(), s.height())
+        _load_logout_background_pixmap(self._bg_label, s.width(), s.height())
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        s = self.size()
+        self._bg_label.setGeometry(0, 0, s.width(), s.height())
+        _load_logout_background_pixmap(self._bg_label, s.width(), s.height())
 
 
 class SuperAdminWindow(QMainWindow):
     """Super Admin Dashboard Window"""
     
-    def __init__(self, user: dict):
+    def __init__(self, user: dict, on_logout=None):
         super().__init__()
         self.user = user
+        self.on_logout = on_logout  # callback to show login again (e.g. start_login)
         self.setWindowTitle("Super Admin Dashboard")
         self.setMinimumSize(1024, 768)
         self.resize(1920, 1080)
@@ -140,9 +271,10 @@ class SuperAdminWindow(QMainWindow):
         """)
         self.stacked_widget.addWidget(self.utility_page)
         
-        # Logout page (placeholder - should show login window)
-        self.logout_page = QLabel("Logging out...")
-        self.logout_page.setAlignment(Qt.AlignCenter)
+        # Logout page (full-page with rooster.png background, same style as login)
+        self.logout_page = LogoutPage(self)
+        self.logout_page.confirmed.connect(self._do_logout)
+        self.logout_page.cancelled.connect(self._on_logout_cancelled)
         self.stacked_widget.addWidget(self.logout_page)
     
     def _on_menu_changed(self, menu_id: str):
@@ -172,17 +304,16 @@ class SuperAdminWindow(QMainWindow):
         print("Refresh requested - reloading cashier data from database")
     
     def _handle_logout(self):
-        """Handle logout action"""
-        from PySide6.QtWidgets import QMessageBox
-        
-        reply = QMessageBox.question(
-            self,
-            'Confirm Logout',
-            'Are you sure you want to logout?',
-            QMessageBox.Yes | QMessageBox.No
-        )
-        
-        if reply == QMessageBox.Yes:
-            # TODO: Close database connections, clear session
-            # For now, just close the window
-            self.close()
+        """Handle logout menu: switch to logout page (background + confirmation card)."""
+        self.stacked_widget.setCurrentWidget(self.logout_page)
+
+    def _do_logout(self):
+        """Perform logout: close window and call on_logout callback."""
+        self.close()
+        if callable(self.on_logout):
+            self.on_logout()
+
+    def _on_logout_cancelled(self):
+        """User clicked No on logout page: return to cashier overview."""
+        self.stacked_widget.setCurrentIndex(0)
+        self.sidebar.set_active_item('cashier-overview')

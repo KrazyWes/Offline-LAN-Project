@@ -94,8 +94,16 @@ def username_exists(username: str) -> bool:
     return row is not None
 
 
-def create_user(username: str, password_plain: str, role: str) -> bool:
+def create_user(username: str, password_plain: str, role: str, name: str = None) -> bool:
     password_hash = _hash_password(password_plain)
+    if name is not None:
+        return execute(
+            """
+            INSERT INTO public.users (username, password_hash, role, is_active, name)
+            VALUES (%s, %s, %s, TRUE, %s);
+            """,
+            (username, password_hash, role, name)
+        )
     return execute(
         """
         INSERT INTO public.users (username, password_hash, role, is_active)
