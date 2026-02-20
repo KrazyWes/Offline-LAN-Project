@@ -199,6 +199,7 @@ class LoginWindow(QWidget):
             QMessageBox.critical(self, "Login failed", "Invalid credentials or inactive account.")
             return
 
+        db.update_last_active(user["user_id"])
         self._save_remembered_username()
         self.on_login_success(user)
         self.close()

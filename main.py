@@ -42,6 +42,7 @@ if __name__ == "__main__":
         def on_login_success(u):
             def do_logout(u=u):
                 from app.ui.login import save_remembered_username
+                db.deactivate_user(u["user_id"])
                 save_remembered_username(u["username"])
                 start_login()
             windows.append(open_role_window(u, on_logout=do_logout))

@@ -117,11 +117,13 @@ def verify_login(username: str, password_plain: str):
     """
     Returns dict if valid login:
       {"user_id":..., "username":..., "role":...}
-    Returns None if invalid.
+    Returns None if invalid (user not found or wrong password).
+    Note: is_active is not checked here—it tracks session state (login/logout).
+    Login fails only if user is deleted (not found) or password is wrong.
     """
     row = fetch_one(
         """
-        SELECT user_id, username, password_hash, role, is_active
+        SELECT user_id, username, password_hash, role
         FROM public.users
         WHERE username = %s
         LIMIT 1;
@@ -131,11 +133,33 @@ def verify_login(username: str, password_plain: str):
     if not row:
         return None
 
-    user_id, uname, password_hash, role, is_active = row
-    if not is_active:
-        return None
+    user_id, uname, password_hash, role = row
 
     if not _verify_password(password_plain, password_hash):
         return None
 
     return {"user_id": user_id, "username": uname, "role": role}
+
+
+def update_last_active(user_id) -> bool:
+    """Update user's last_active timestamp and set is_active (on login)."""
+    return execute(
+        """
+        UPDATE public.users
+        SET last_active = NOW(), is_active = TRUE
+        WHERE user_id = %s;
+        """,
+        (user_id,)
+    )
+
+
+def deactivate_user(user_id) -> bool:
+    """Set is_active to false and update last_active (on logout)."""
+    return execute(
+        """
+        UPDATE public.users
+        SET is_active = FALSE, last_active = NOW()
+        WHERE user_id = %s;
+        """,
+        (user_id,)
+    )
