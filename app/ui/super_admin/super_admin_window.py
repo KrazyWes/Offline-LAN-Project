@@ -17,6 +17,7 @@ from PySide6.QtWidgets import QGraphicsDropShadowEffect
 from app.ui.components.styles import COLORS, FONT_SIZES, FONT_WEIGHTS, SPACING, RADIUS
 from .sidebar import Sidebar
 from .cashier_overview import CashierOverview
+from .accounts_overview import AccountsOverview
 
 _LOGOUT_BG_PATH = Path(__file__).resolve().parent.parent.parent / "assets" / "backgrounds" / "rooster.png"
 
@@ -211,14 +212,7 @@ class SuperAdminWindow(QMainWindow):
         """)
         self.stacked_widget.addWidget(self.event_overview)
         
-        self.accounts_page = QLabel("Accounts\n(Coming soon)")
-        self.accounts_page.setAlignment(Qt.AlignCenter)
-        self.accounts_page.setStyleSheet(f"""
-            QLabel {{
-                font-size: 24px;
-                color: {COLORS['gray_500']};
-            }}
-        """)
+        self.accounts_page = AccountsOverview()
         self.stacked_widget.addWidget(self.accounts_page)
         
         self.reports_page = QLabel("Reports and Database\n(Coming soon)")

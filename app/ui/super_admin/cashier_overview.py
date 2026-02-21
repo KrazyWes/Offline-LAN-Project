@@ -479,8 +479,8 @@ class CashierOverview(QWidget):
                 self.show_unclaimed,
                 self._on_individual_toggle
             )
-            # Align cards to top so collapsed cards stay small and don't stretch with row
-            self.cards_layout.addWidget(card, row, col, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+            # Align cards to top and center horizontally so collapsed cards stay small and don't stretch with row
+            self.cards_layout.addWidget(card, row, col, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
             
             col += 1
             if col >= cols:

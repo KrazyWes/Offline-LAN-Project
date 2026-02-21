@@ -120,7 +120,9 @@ class CashierCard(QFrame):
         """)
         row.addWidget(dot)
         
-        # Cashier name
+        row.addStretch()
+        
+        # Cashier name (centered)
         name_label = QLabel(self.cashier_data['name'])
         name_label.setStyleSheet(f"""
             QLabel {{
@@ -191,9 +193,35 @@ class CashierCard(QFrame):
         
         header.addLayout(icons_group)
         
-        # Center: Online/Offline pill badge
-        badge = QLabel("Online" if self.cashier_data['is_online'] else "Offline")
+        # Center: Online/Offline pill badge with icon
+        badge = QFrame()
         badge.setObjectName("badge-online" if self.cashier_data['is_online'] else "badge-offline")
+        badge_layout = QHBoxLayout(badge)
+        badge_layout.setContentsMargins(0, 0, 0, 0)
+        badge_layout.setSpacing(SPACING['1'])
+        
+        # Status icon
+        from PySide6.QtGui import QPixmap
+        import os
+        status_icon_label = QLabel()
+        status_icon_label.setFixedSize(12, 12)
+        status_icon_label.setScaledContents(True)
+        icon_name = "dot_online.png" if self.cashier_data['is_online'] else "dot_offline.png"
+        icon_path = os.path.join("app", "assets", "icons", "status", icon_name)
+        if os.path.exists(icon_path):
+            pixmap = QPixmap(icon_path)
+            if not pixmap.isNull():
+                status_icon_label.setPixmap(pixmap.scaled(
+                    12, 12,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                ))
+        badge_layout.addWidget(status_icon_label)
+        
+        # Status text
+        badge_text = QLabel("Online" if self.cashier_data['is_online'] else "Offline")
+        badge_layout.addWidget(badge_text)
+        
         header.addWidget(badge)
         header.addStretch()
         
