@@ -169,6 +169,7 @@ class SuperAdminWindow(QMainWindow):
         # Sidebar
         self.sidebar = Sidebar()
         self.sidebar.menu_changed.connect(self._on_menu_changed)
+        self.sidebar.refresh_requested.connect(self._on_sidebar_refresh_requested)
         main_layout.addWidget(self.sidebar)
         
         # Content area (right side)
@@ -296,6 +297,18 @@ class SuperAdminWindow(QMainWindow):
         """Handle refresh request from cashier overview"""
         # TODO: Reload data from database
         print("Refresh requested - reloading cashier data from database")
+    
+    def _on_sidebar_refresh_requested(self, menu_id: str):
+        """Handle refresh request from sidebar main menu items - reload page data"""
+        if menu_id == 'cashier-overview':
+            self.cashier_overview._load_cashiers()
+            self.cashier_overview._render_cards()
+        elif menu_id == 'accounts':
+            self.accounts_page._load_users()
+        elif menu_id == 'event-overview':
+            pass  # TODO: Add refresh when event overview is implemented
+        elif menu_id == 'reports':
+            pass  # TODO: Add refresh when reports page is implemented
     
     def _handle_logout(self):
         """Handle logout menu: switch to logout page (background + confirmation card)."""

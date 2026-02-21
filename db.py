@@ -123,8 +123,8 @@ def super_admin_exists() -> bool:
 
 def username_exists(username: str) -> bool:
     row = fetch_one(
-        "SELECT 1 FROM public.users WHERE username = %s LIMIT 1;",
-        (username,)
+        "SELECT 1 FROM public.users WHERE username = %s AND role != %s LIMIT 1;",
+        (username, "super_admin")
     )
     return row is not None
 
@@ -132,7 +132,7 @@ def username_exists(username: str) -> bool:
 def create_user(username: str, password_plain: str, role: str, name: str) -> bool:
     """Create a new user. All fields are required (name is NOT NULL in DB)."""
     password_hash = _hash_password(password_plain)
-    role = role or "teller"
+    role = role or "cashier"
     name = name or username  # fallback to username if name is empty
     return execute(
         """
@@ -197,8 +197,8 @@ def deactivate_user(user_id) -> bool:
 
 # ---------- ACCOUNTS (excludes super_admin for security) ----------
 
-ROLES_FOR_ACCOUNTS = ("admin", "teller", "monitor", "operator_a", "operator_b")
-ROLE_DISPLAY = {"admin": "Administrator", "teller": "Cashier", "monitor": "Monitor", "operator_a": "Operator A", "operator_b": "Operator B"}
+ROLES_FOR_ACCOUNTS = ("administrator", "cashier", "monitor", "operator_a", "operator_b")
+ROLE_DISPLAY = {"administrator": "Administrator", "cashier": "Cashier", "monitor": "Monitor", "operator_a": "Operator A", "operator_b": "Operator B"}
 
 
 def fetch_users_excluding_super_admin():
@@ -211,7 +211,14 @@ def fetch_users_excluding_super_admin():
         SELECT user_id, username, name, role, is_active, last_active
         FROM public.users
         WHERE role != %s
-        ORDER BY COALESCE(name, username) ASC;
+        ORDER BY CASE role
+            WHEN 'administrator' THEN 1
+            WHEN 'operator_a' THEN 2
+            WHEN 'operator_b' THEN 3
+            WHEN 'monitor' THEN 4
+            WHEN 'cashier' THEN 5
+            ELSE 6
+        END ASC, COALESCE(name, username) ASC;
         """,
         ("super_admin",)
     )
@@ -230,7 +237,7 @@ def fetch_users_excluding_super_admin():
 
 def update_user_account(user_id: int, username: str, name: str, role: str, password_plain: str = None) -> bool:
     """Update user. Does not allow updating super_admin."""
-    role = str(role or "teller")
+    role = str(role or "cashier")
     if role not in ROLES_FOR_ACCOUNTS:
         return False
     if password_plain:
@@ -262,3 +269,29 @@ def delete_user_account(user_id: int) -> bool:
         (user_id, "super_admin"),
         require_affected=True,
     )
+
+
+def fetch_cashiers():
+    """
+    Fetch all users with role='cashier'. Returns list of dicts:
+    [{"user_id", "username", "name", "is_active", "last_active"}, ...]
+    """
+    rows = fetch_all(
+        """
+        SELECT user_id, username, name, is_active, last_active
+        FROM public.users
+        WHERE role = %s
+        ORDER BY COALESCE(name, username) ASC;
+        """,
+        ("cashier",)
+    )
+    return [
+        {
+            "user_id": r[0],
+            "username": r[1],
+            "name": r[2],
+            "is_active": r[3],
+            "last_active": r[4],
+        }
+        for r in rows
+    ]

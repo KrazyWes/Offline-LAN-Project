@@ -21,6 +21,7 @@ from app.ui.components.styles import (
 from .cashier_card import CashierCard
 from app.ui.components.toggle_switch import ToggleSwitch
 from app.ui.components.icon_utils import set_icon
+import db
 
 
 @dataclass
@@ -82,42 +83,30 @@ class CashierOverview(QWidget):
         # Debounce timer for search
         self.search_timer: Optional[QTimer] = None
         
-        # Load mock data (will be replaced with DB data later)
-        self._load_mock_data()
+        # Load cashier data from database
+        self._load_cashiers()
         
         self._build_ui()
         self._render_cards()
     
-    def _load_mock_data(self):
-        """Load mock cashier data (from CASHIER_OVERVIEW_ALGORITHM.md)"""
-        import random
-        
-        names = [
-            "John Smith", "Maria Garcia", "David Lee", "Emily Davis",
-            "James Wilson", "Jennifer Moore", "Jessica Martinez", "Amanda Martin",
-            "Joseph Harris", "Karen Robinson", "Lisa Anderson", "Charles Clark",
-            "Michael Brown", "Michelle White", "Nancy Lewis", "Richard Jackson",
-            "Robert Taylor", "Sarah Johnson", "Thomas Thompson", "William Thomas"
-        ]
-        
+    def _load_cashiers(self):
+        """Load cashier data from database"""
         self.cashiers = []
-        for i in range(20):
-            cash_in = random.uniform(20000, 100000)
-            cash_out = random.uniform(5000, 45000)
-            withdraw = random.uniform(5000, 35000)
-            
+        
+        rows = db.fetch_cashiers()
+        for row in rows:
             cashier = CashierData(
-                id=i + 1,
-                name=names[i],
-                is_online=random.random() > 0.3,  # 70% online
-                battery_percentage=random.randint(0, 100),
-                total_bets=random.uniform(10000, 60000),
-                cash_in=cash_in,
-                cash_out=cash_out,
+                id=row["user_id"],
+                name=row["name"] or row["username"],
+                is_online=row["is_active"],
+                battery_percentage=100,
+                total_bets=0.0,
+                cash_in=0.0,
+                cash_out=0.0,
                 draw_bets=0.0,
                 cancel_bets=0.0,
                 unclaimed=0.0,
-                withdraw=withdraw
+                withdraw=0.0
             )
             self.cashiers.append(cashier)
             self.individual_views[cashier.id] = True
@@ -359,7 +348,8 @@ class CashierOverview(QWidget):
     def _on_refresh(self):
         """Handle refresh button click"""
         self.refresh_requested.emit()
-        # TODO: Reload data from database
+        self._load_cashiers()
+        self._render_cards()
     
     def _on_unclaimed_toggle(self, checked: bool):
         """Handle unclaimed toggle switch"""

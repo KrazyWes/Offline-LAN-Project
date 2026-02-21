@@ -78,8 +78,8 @@ def _format_last_active(ts) -> str:
 
 def _get_role_style(role: str) -> str:
     styles = {
-        "admin": "background-color: rgba(243, 232, 255, 0.6); color: #7C3AED; border: none;",
-        "teller": "background-color: rgba(209, 250, 229, 0.6); color: #047857; border: none;",
+        "administrator": "background-color: rgba(243, 232, 255, 0.6); color: #7C3AED; border: none;",
+        "cashier": "background-color: rgba(209, 250, 229, 0.6); color: #047857; border: none;",
         "monitor": "background-color: rgba(219, 234, 254, 0.6); color: #1D4ED8; border: none;",
         "operator_a": "background-color: rgba(219, 234, 254, 0.6); color: #1D4ED8; border: none;",
         "operator_b": "background-color: rgba(254, 243, 199, 0.6); color: #A16207; border: none;",
@@ -356,7 +356,7 @@ class CreateAccountModal(DraggableCardDialog):
         name = self.name_edit.text().strip()
         username = self.username_edit.text().strip()
         pw = self.password_edit.text()
-        role = self.role_combo.currentData() or "teller"
+        role = self.role_combo.currentData() or "cashier"
         role = str(role)
 
         ok = db.create_user(username, pw, role, name)
@@ -419,7 +419,7 @@ class EditAccountModal(DraggableCardDialog):
         self.role_combo = QComboBox()
         for r in ROLES_FOR_ACCOUNTS:
             self.role_combo.addItem(ROLE_DISPLAY.get(r, r), r)
-        idx = self.role_combo.findData(self.user.get("role", "teller"))
+        idx = self.role_combo.findData(self.user.get("role", "cashier"))
         if idx >= 0:
             self.role_combo.setCurrentIndex(idx)
         self.role_combo.setFixedHeight(40)
@@ -531,7 +531,7 @@ class EditAccountModal(DraggableCardDialog):
         name = self.name_edit.text().strip()
         username = self.username_edit.text().strip()
         pw = self.password_edit.text() or None
-        role = self.role_combo.currentData() or self.user.get("role", "teller")
+        role = self.role_combo.currentData() or self.user.get("role", "cashier")
         role = str(role)
 
         print(f"[DEBUG] Updating user_id={user_id}, role={role}, password_changed={'Yes' if pw else 'No'}")
@@ -806,7 +806,7 @@ class AccountsOverview(QWidget):
         """)
         import os
         from app.ui.components.icon_utils import asset_path
-        _ROLE_ICONS = {"teller": "cashier.png", "operator_a": "operator_b.png", "operator_b": "operator_a.png"}
+        _ROLE_ICONS = {"cashier": "cashier.png", "operator_a": "operator_b.png", "operator_b": "operator_a.png"}
         icon_file = _ROLE_ICONS.get(role_raw, f"{role_raw}.png")
         icon_path = f"icons/role/{icon_file}"
         full_path = asset_path(*icon_path.split("/"))

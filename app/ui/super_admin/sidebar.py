@@ -66,6 +66,7 @@ class Sidebar(QWidget):
     
     menu_changed = Signal(str)  # Emits menu item ID
     toggle_requested = Signal()  # Emits when toggle button clicked
+    refresh_requested = Signal(str)  # Emits when main menu item clicked to request data refresh
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -285,6 +286,11 @@ class Sidebar(QWidget):
         
         # Emit signal
         self.menu_changed.emit(key)
+        
+        # Emit refresh signal for main menu items to refresh page data
+        main_menu_items = ['cashier-overview', 'event-overview', 'accounts', 'reports']
+        if key in main_menu_items:
+            self.refresh_requested.emit(key)
     
     def _update_ui_state(self):
         """Update UI based on expanded/collapsed state"""
